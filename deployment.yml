@@ -1,12 +1,24 @@
 ---
+- hosts: localhost
+  remote_user: root
+  become: true
+  gather_facts: false
+  tasks:
+  - name: clear the environment
+    file:
+     name: petclinic.war
+     state: absent
+  - name: download package from artifactory server
+    command: wget http://10.140.0.3:8081/artifactory/PetClinic/petclinic.war
+
 - hosts: appserver
   remote_user: root
   become: true
   gather_facts: false
   tasks:
-  - name: download package from artifactory server
-    command: wget http://10.140.0.3:8081/artifactory/PetClinic/petclinic.war
   - name: deploy war file to server
-    copy: src=~/petclinic.war dest=/opt/apache-tomcat-8.5.30/webapps/
+    copy:
+     src: /root/petclinic.war
+     dest: /opt/apache-tomcat-8.5.30/webapps/petclinic.war
   - name: restart app server
-    script: /opt/apache-tomcat-8.5.30/bin/catalina.sh start
+    command: sh /opt/apache-tomcat-8.5.30/bin/catalina.sh start
